@@ -1,0 +1,12 @@
+---
+sgname: testsg
+lbsgname: test_lb_sg
+vpcid: vpc-023f7d6a
+region: us-east-2
+cidrip: 0.0.0.0/0
+keyname: my_keypair
+imgname: ami-03291866
+cnt: 2
+sbnet: subnet-6653f91c
+instancename: webservers
+mylbname: testlb123

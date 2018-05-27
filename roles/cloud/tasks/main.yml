@@ -1,0 +1,5 @@
+---
+- include: instance_sg.yml
+- include: keypair.yml
+- include: instance.yml
+- include: elb.yml

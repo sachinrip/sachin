@@ -1,0 +1,8 @@
+---
+- name: Generate key pair
+  ec2_key:
+    name: my_keypair
+    key_material: "{{ lookup('file', 'my-key-test.pub') }}"
+  register: my_keypair_out
+- debug:
+    var: my_keypair_out

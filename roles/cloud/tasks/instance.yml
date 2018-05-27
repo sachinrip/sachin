@@ -1,0 +1,44 @@
+---
+- name: Generate Instances
+  ec2:
+    exact_count: 2
+    count_tag:
+      Name: "{{ instancename }}"
+    region: "{{ region }}"
+    key_name: "{{ keyname }}"
+    instance_type: t2.micro
+    image: "{{ imgname }}"
+    wait: yes
+    group: "{{ testsg_out.group_name }}"
+#        count: "{{ cnt }}"
+    vpc_subnet_id: "{{ sbnet }}"
+    assign_public_ip: yes
+    instance_tags:
+      Name: "{{ instancename }}"
+  register: test_instance_out
+- debug:
+    var: test_instance_out
+#    - ec2_remote_facts:
+#        region: "{{ region }}"
+#        filters:
+#          instance-state-name: running
+#          "tag:Name": "{{ instancename }}"
+#      register: test_instance_name_out
+#    - debug:
+#        var: test_instance_name_out
+- name: Add Instances to Group
+  add_host:
+    name: "{{ item.dns_name }}"
+    group: webservers
+  loop: "{{ test_instance_out.tagged_instances }}"
+  register: test_instance_groupadd_out
+- debug:
+    var: test_instance_groupadd_out
+- name: wait for instance to started
+  wait_for:
+    host: "{{ item.dns_name }}"
+    port: 22
+    delay: 10
+    timeout: 320
+    state: started
+    loop: "{{ test_instance_out.tagged_instances }}"

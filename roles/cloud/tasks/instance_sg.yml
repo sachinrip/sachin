@@ -1,0 +1,22 @@
+---
+- name: Create security groups
+  ec2_group:
+    name: "{{ sgname }}"
+    description: my webserver sg
+    vpc_id: "{{ vpcid }}"
+    region: "{{ region }}"
+    rules:
+      - proto: tcp
+        ports:
+          - 80
+             - 22
+    cidr_ip: "{{ cidrip }}"
+    rule_desc: allow all on port 80 and 22
+#          - proto: tcp
+#            ports:
+#           - 22
+#           cidr_ip: "{{ cidrip }}"
+#            rule_desc: allow all on port 22 for ssh
+  register: testsg_out
+- debug:
+    var: testsg_out

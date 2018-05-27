@@ -1,0 +1,46 @@
+---
+- name: Add Instances to Group
+  add_host:
+    name: "{{ item.dns_name }}"
+    group: webservers
+  loop: "{{ test_instance_out.tagged_instances }}"
+  register: test_instance_groupadd_out
+- debug:
+    var: test_instance_groupadd_out
+- name: Create security groups for Load Balancer
+  ec2_group:
+    name: "{{ lbsgname }}"
+    description: my webserver sg
+    vpc_id: "{{ vpcid }}"
+    region: "{{ region }}"
+    rules:
+      - proto: tcp
+        ports:
+          - 80
+        cidr_ip: "{{ cidrip }}"
+        rule_desc: allow all on port 80
+  register: testlbsg_out
+- name: Create Load Balancer
+  ec2_elb_lb:
+    name: "{{ mylbname }}"
+    state: present
+    region: "{{ region }}"
+    #zones:
+    #  - us-east-2b
+#Use subnet instead of zones, if you define subnet it will automatically find the zones
+    subnets: 
+      - "{{ sbnet }}"
+    listeners:
+      - protocol: http # options are http, https, ssl, tcp
+        load_balancer_port: 80
+        instance_port: 80
+- debug:
+    var: testlbsg_out
+- name: Instance Register
+  ec2_elb:
+    instance_id: "{{ item.id }}"
+    ec2_elbs: "{{ mylbname }}"
+    state: present
+    region: "{{ region }}"
+  loop: "{{ test_instance_out.tagged_instances }}"
+
